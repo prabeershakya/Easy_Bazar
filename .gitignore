@@ -1,0 +1,5 @@
+Easy_front/node_modules/
+Easy_back/node_modules/
+*.env
+Easy_front/.env
+Easy_back/.env
