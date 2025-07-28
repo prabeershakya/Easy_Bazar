@@ -1,13 +1,17 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 const { sequelize, connectDB } = require('./DB/Database')
 const userRoutes = require("./Routes/userRoute");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT;
 
 // Middleware
-// app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:5173'
+}));
 
 app.use(express.json());
 
@@ -21,7 +25,7 @@ app.use('/api/user', userRoutes);
 const StartServer = async () => {
     try {
         await connectDB();
-        await sequelize.sync({ alter: true});
+        await sequelize.sync({});
         app.listen(PORT, () => {
             console.log(`Server running at localhost:${PORT}`);
         });

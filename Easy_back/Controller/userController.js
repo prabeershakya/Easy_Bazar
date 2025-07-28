@@ -29,7 +29,7 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user || user.password !== password) {
+    if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -43,9 +43,17 @@ const loginUser = async (req, res) => {
   }
 }
 const getUserProfile = async (req, res) => {
-  const userId = req.user.id; 
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   try {
-    const user = await User.findByPk(userId);
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findByPk(decode.id, {
+      attributes: ['id', 'username', 'email', 'role']
+    });
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -54,8 +62,10 @@ const getUserProfile = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 }
+
+
 const removeUser = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.params.id;
   try {
     const user = await User.findByPk(userId);
     if (!user) {
@@ -68,10 +78,21 @@ const removeUser = async (req, res) => {
   }
 }
 
+const ListUsers = async (req, res) => {
+  try {
+    const list = await User.findAll({
+      attributes: ['id', 'username', 'email', 'role']
+    });
+    res.status(200).json(list);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
 module.exports = {
-  registerUser,
+  registerUser, 
   loginUser,
   getUserProfile,
-  removeUser
+  removeUser,
+  ListUsers
 };
