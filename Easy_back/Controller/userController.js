@@ -5,12 +5,17 @@ const jwt = require("jsonwebtoken");
 const  SECRET = process.env.JWT_SECRET;
 
 const registerUser = async (req, res) => {
-  const { username, email, password, role } = req.body;
+const { username, email, password, role } = req.body;
 const hashedPassword = bcrypt.hashSync(password, 10);
 
-const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) {
-    return res.status(400).json({ error: "User already exists" });
+const ExistingEmail = await User.findOne({ where: { email } });
+  if (ExistingEmail) {
+    return res.status(400).json({ error: "Email already exists" });
+  }
+  
+const ExistingUsername = await User.findOne({ where: { username } });
+  if (ExistingUsername) {
+    return res.status(400).json({ error: "Username already exists" });
   }
 
   try {
@@ -89,10 +94,28 @@ const ListUsers = async (req, res) => {
   }
 }
 
+const updateUser = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+  user.role = 'seller';
+  await user.save();
+
+    res.json({ message: "User updated to seller successfully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
 module.exports = {
   registerUser, 
   loginUser,
   getUserProfile,
   removeUser,
-  ListUsers
+  ListUsers,
+  updateUser
 };

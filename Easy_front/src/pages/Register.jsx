@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { createUserApi } from "../api/api";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -9,6 +10,7 @@ const Register = () => {
     password: "",
     confirmPassword: ""
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,42 +19,32 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form data:", form);
 
     if (form.password !== form.confirmPassword) {
       toast.error("Passwords do not match!");
       return;
     }
 
-    // if (form.password.length < 6) {
-    //   toast.error("Password must be at least 6 characters long!");
-    //   return;
-    // }
-
     try {
-  
-      const response = await fetch("http://localhost:5000/api/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: form.username,
-          email: form.email,
-          password: form.password
-        }),
+      const response = await createUserApi({
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        role: "user"
       });
 
-      const data = await response.json();
+      const data = response.data;
+      console.log("Registration response:", data);
 
-      if (response.ok) {
+      if (response.status === 201) {
         toast.success("Registration successful! Please login.");
         navigate("/login");
-      } 
-      
-      const userexistist = data.error === "User already exists";
-      if (userexistist) {
+      } else if (data.error === "User already exists") {
         toast.error("User already exists");
-      } 
+      } else {
+        toast.error(data.message || "Registration failed");
+      }
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("Something went wrong. Please try again.");
@@ -115,9 +107,6 @@ const Register = () => {
             required
             autoComplete="new-password"
           />
-          {/* <p className="text-xs text-gray-500 mt-1">
-            Password must be at least 6 characters long
-          </p> */}
         </div>
 
         <div>
@@ -135,14 +124,7 @@ const Register = () => {
             autoComplete="new-password"
           />
         </div>
-        {/* <div>
-          <input
-          type="file"
-          ref={fileInputRef}
-          onChange={(e) => setProfilePic(e.target.files[0])}
-          accept="image/*"
-          />
-        </div> */}
+
         <button
           type="submit"
           className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg transition"

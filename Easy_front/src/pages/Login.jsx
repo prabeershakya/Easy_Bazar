@@ -1,50 +1,50 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode"; 
+import { loginUserApi } from "../api/api";
 
 const Login = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
-
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      
-      const response = await fetch("http://localhost:5000/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+try {
+  const response = await loginUserApi({ email, password });
+  console.log("Login response:", response.data);
 
-      const data = await response.json();
-      console.log(response);
-      if (response.ok) {
-        
-        localStorage.setItem("token", data.token);
-        // localStorage.setItem("user", JSON.stringify(data.user));
-        
-        
-        toast.success("Login successful!");
-        
-        navigate("/Home"); 
-      } else {
-       
-        toast.error(data.message || "Invalid email or password");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Something went wrong. Please try again.");
+  if (response?.data?.token) {
+    localStorage.setItem('token', response.data.token);
+    toast.success("Login successful!");
+
+    const decoded = jwtDecode(response.data.token);
+    console.log("Decoded token:", decoded);
+
+    if (decoded?.role === 'admin') {
+  setTimeout(() => {
+    navigate('/admin');
+  }, 1000);
+} else if (decoded?.role === 'seller') {
+  setTimeout(() => {
+    navigate('/sellerDashboard');
+  }, 1000);
+} else {
+  setTimeout(() => {
+    navigate('/Home');
+  }, 1000);
+
     }
-  };
+  } else {
+    toast.error("Login failed. Please check your credentials.");
+  }
+} catch (error) {
+  console.error('Login error:', error?.response?.data || error.message || error);
+  toast.error(error?.response?.data?.message || 'An error occurred. Please try again.');
+    } 
+      };
 
   return (
     <div className="flex items-center justify-center min-h-[70vh] mt-24">
@@ -63,11 +63,11 @@ const Login = () => {
             type="email"
             id="email"
             name="email"
-            value={form.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="username"
-            disabled={false}
+            // disabled={false}
           />
         </div>
         
@@ -80,11 +80,11 @@ const Login = () => {
             type="password"
             id="password"
             name="password"
-            value={form.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            disabled={false}
+            // disabled={false}
           />
         </div>
         

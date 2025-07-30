@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const { sequelize, connectDB } = require('./DB/Database')
 const userRoutes = require("./Routes/userRoute");
+const productRoutes = require("./Routes/productRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -13,14 +14,17 @@ app.use(cors({
     origin: 'http://localhost:5173'
 }));
 
-app.use(express.json());
+
 
 app.get("/", (req, res) => {
   res.send("server is running fine!");
 });
 
-
+app.use(express.json());
+// Routes
+app.use('/uploads', express.static('uploads'));
 app.use('/api/user', userRoutes);
+app.use('/api/product', productRoutes);
 
 const StartServer = async () => {
     try {

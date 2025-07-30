@@ -1,22 +1,24 @@
-import { useState } from "react";
+import React from 'react';
+import { useState } from 'react';
+
 
 function SearchBar({ onSearch }) {
-    const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-    const handleSubmit = (e) => {
-        setSearchQuery(e.target.value);
-        onSearch(e.target.value);
-    };
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    onSearch(value); // Trigger search every time input changes
+  };
 
-    return (
-        <input
-        type="search"
-        placeholder="Search Products..."
-        value={searchQuery}
-        onChange={handleSubmit}
-        className="w-250 p-2 bg-gray-200 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 drop-shadow-sm placeholder:text-center"
-        />
-    );
+  return (
+    <input
+      type="search"
+      value={searchQuery}
+      onChange={handleChange}
+      placeholder="Search products..."
+      className="flex-grow w-full px-4 py-2 text-base rounded-2xl border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 bg-white text-gray-800 placeholder-gray-400 transition-all duration-150 outline-none h-14"
+    />
+  );
 }
-
 export default SearchBar;
