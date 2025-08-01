@@ -66,7 +66,7 @@ const Profile = () => {
 
     try {
       const res = await switchToSellerApi();
-      console.log(res);
+      // console.log(res);
 
       if (res?.data?.success === true) {
         toast.success(res.data.message || 'Switched to seller successfully');
@@ -77,10 +77,10 @@ const Profile = () => {
           setUserRole(decoded.role);
         }
 
-        navigate('/sellerDashboard');
+        navigate('/Home');
       } else {
         toast.success(res.data.message || 'Role updated to seller.');
-        navigate('/sellerDashboard');
+        navigate('/Home');
       }
     } catch (err) {
       console.error('Switch error:', err);
@@ -95,9 +95,9 @@ const Profile = () => {
       <h2 className="text-3xl font-bold mb-6 text-center text-orange-600">👤 Profile</h2>
 
       <div className="space-y-3 text-gray-700 text-lg">
-        <p>
+        {/* <p>
           <strong>ID:</strong> {user?.id}
-        </p>
+        </p> */}
         <p>
           <strong>Email:</strong> {user?.email}
         </p>

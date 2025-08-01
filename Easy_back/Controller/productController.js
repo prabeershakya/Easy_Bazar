@@ -5,7 +5,7 @@ const { Product, User } = require("../Model/index");
 const { Op } = require("sequelize");
 
 const createProduct = async (req, res) => {
-  const { name, price, description, category, stock } = req.body;
+  const { name, price, description, category, stock, featured } = req.body;
   const image = req.file ? req.file.filename : null;  // Instead of req.file.path
 
     if(!name || !price || !description || !category || !stock) {
@@ -19,14 +19,15 @@ const createProduct = async (req, res) => {
         return res.status(400).json({ error: "Image is required" });
     }
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const product = await Product.create({ sellerid: req.user.id ,
          name,
           price,
           description,
           image,
           category,
-          stock
+          stock,
+          featured: featured === 'true' ? true : false
     });
     res.status(201).json(product);
   } catch (error) {
@@ -35,16 +36,27 @@ const createProduct = async (req, res) => {
 }
 
 const listProduct = async (req, res) => {
+  const { featured } = req.query;
+
   try {
+    const where = {};
+
+    if (featured !== undefined) {
+      where.featured = featured === 'true'; 
+    }
+
     const products = await Product.findAll({
-      attributes: ['id', 'name', 'price', 'description', 'image', 'category'],
-      where: { sellerid: req.user.id }
+      attributes: ['id', 'name', 'price', 'description', 'image', 'stock', 'category', 'featured'],
+      where,
     });
+
     res.status(200).json(products);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
+
+
 
 const searchProducts = async (req, res) => {
   const q = req.query.q || "";

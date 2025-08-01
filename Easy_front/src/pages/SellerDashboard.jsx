@@ -8,11 +8,11 @@ const SellerDashboard = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('Fetching seller products...');
+        // console.log('Fetching seller products...');
         const res = await getSellerProductsApi();
-        console.log('API Response:', res);
+        // console.log('API Response:', res);
         if (res && res.data) {
-          console.log('Products data:', res.data);
+          // console.log('Products data:', res.data);
           setProducts(res.data);
         } else {
           console.error('No data in response:', res);

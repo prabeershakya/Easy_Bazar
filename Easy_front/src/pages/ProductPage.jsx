@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getProductByIdApi } from '../api/api';
+import { addToWishlist } from '../api/api'; 
 import toast from 'react-hot-toast';
 
 const ProductPage = () => {
   const { id } = useParams();
-  
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [inWishlist, setInWishlist] = useState(false);
   
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await getProductByIdApi(id);
-        
+        // console.log('Product fetched:', res.data);
         setProduct(res.data);
       } catch (err) {
         console.error('Error fetching product:', err);
@@ -23,23 +25,67 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  const handleBuyClick = () => {
-    // Add your buy logic here
-    toast.success(`Added ${product.name} to cart!`);
-  };
+  
+  const handleAddToWishlist = async () => {
+  const token = localStorage.getItem('token');
+  try {
+    const data = await addToWishlist(id, token);
+    
+    if (data.success) {
+      setInWishlist(true);
+      toast.success(`Added ${product.name} to wishlist!`);
+    } else {
+      toast.error(data.message || 'Failed to add.');
+    }
+  } catch (err) {
+    console.error('Error adding to wishlist:', err);
+    setInWishlist(false);
+    toast.error(err.error || 'Something went wrong');
+  }
+};
+    
+  
+const handleViewProfile = () => {
+  if (product?.seller?.id) {
+    navigate(`/user/${product.seller.id}`);
+  } else {
+    toast.error("Seller information not available");
+  }
+};
 
-  const handleWishlistClick = () => {
-    // Add your wishlist logic here
-    toast.success(`Added ${product.name} to wishlist!`);
-  };
 
-  const handleViewProfile = () => {
-    // Add your view profile logic here
-    // You might want to navigate to seller profile page
-    toast.success(`Viewing ${product.seller.username}'s profile!`);
-  };
   
   if (!product) return <div className="text-center mt-20 text-gray-500">Loading...</div>;
+
+const handleBuyClick = () => {
+  if (!product) {
+    toast.error("Product not loaded yet");
+    return;
+  }
+
+  const config = {
+    publicKey: "test_public_key_dc74a350a50c4ed1a4b2097c21a2b3cd",
+    productIdentity: product.id.toString(), 
+    productName: product.name,
+    productUrl: window.location.href,
+    paymentPreference: ["KHALTI", "EBANKING", "MOBILE_BANKING"],
+    eventHandler: {
+      onSuccess(payload) {
+        // console.log("Payment Success:", payload);
+        toast.success("Payment Successful!");
+      },
+      onError(error) {
+        // console.log("Payment Error:", error);
+        toast.error("Payment failed. Please try again.");
+      },
+      onClose() {
+        //  console.log("Payment widget closed");
+      },
+    },
+  };
+  const checkout = new window.KhaltiCheckout(config);
+  checkout.show({ amount: product.price * 100 });
+};
 
   // console.log('Product data:', product);
   return (
@@ -68,7 +114,7 @@ const ProductPage = () => {
               Buy Now
             </button>
             <button
-              onClick={handleWishlistClick}
+              onClick={handleAddToWishlist}
               className="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-600 font-semibold py-3 px-6 rounded-lg border-2 border-orange-600 transition duration-200 ease-in-out transform hover:scale-105 shadow-md"
             >
               Add to Wishlist

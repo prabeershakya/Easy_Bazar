@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,9 +16,15 @@ const Navbar = () => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
-      
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (err) {
+        setUser(null);
+      }
     } else {
       setIsLoggedIn(false);
+      setUser(null);
     }
   };
 
@@ -153,7 +160,7 @@ const Navbar = () => {
                         : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
                     }`}
                   >
-                    Admin Dashboard
+                    Dashboard
                   </Link>
                 )}
 

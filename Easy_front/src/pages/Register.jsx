@@ -19,7 +19,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", form);
+    
 
     if (form.password !== form.confirmPassword) {
       toast.error("Passwords do not match!");
@@ -35,7 +35,7 @@ const Register = () => {
       });
 
       const data = response.data;
-      console.log("Registration response:", data);
+      // console.log("Registration response:", data);
 
       if (response.status === 201) {
         toast.success("Registration successful! Please login.");

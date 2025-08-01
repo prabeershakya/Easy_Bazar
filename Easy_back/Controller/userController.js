@@ -111,11 +111,47 @@ const updateUser = async (req, res) => {
   }
 }
 
+const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'username', 'email'], // Avoid sending password
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user by ID:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+// seller Part
+
+const getSellerProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("-password");
+    if (!user || user.role !== "seller") {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 module.exports = {
   registerUser, 
   loginUser,
   getUserProfile,
+  getSellerProfile,
   removeUser,
   ListUsers,
-  updateUser
+  updateUser,
+  getUserById
 };

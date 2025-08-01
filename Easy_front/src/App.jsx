@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+
 import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Wishlist from "./pages/Wishlist";
@@ -11,17 +12,19 @@ import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
-import SellerDashboard from "./pages/SellerDashboard";
+import AddProduct from "./pages/addProduct";
 import NotFound from "./pages/NotFound";
 import ProductDetail from "./pages/ProductPage";
+import SellerProfile from "./pages/SellerProfile";
+import Unauthorized from "./pages/Unauthorized";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        
-        {/* Main content grows to fill space */}
+
         <main className="flex-grow">
           <Toaster
             position="top-right"
@@ -30,22 +33,56 @@ const App = () => {
             toastOptions={{
               className: "custom-toast",
               style: {
-                Animation: "0.5s ease-in-out",
+                animation: "0.5s ease-in-out",
               },
             }}
           />
 
           <Routes>
-            <Route path="/" element={<About />} />
-            <Route path="/Home" element={<Home />} />
-            <Route path="/Product" element={<Product />} />
-            <Route path="/Wishlist" element={<Wishlist />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/sellerDashboard" element={<SellerDashboard />} />
+            <Route path="/" element={<About />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/addProduct"
+              element={
+                <ProtectedRoute role={["seller", "admin"]}>
+                  <AddProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute role={["user", "admin", "seller"]}>
+                  <Wishlist />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute role={["user", "admin", "seller"]}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Public Routes */}
+            <Route path="/Home" element={<Home />} />
+            <Route path="/Product" element={<Product />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/user/:id" element={<SellerProfile />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

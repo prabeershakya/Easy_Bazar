@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SearchBar from '../components/SearchBar';
+import { getUserProfileApi } from '../api/api';
 import { searchProductsApi } from '../api/api';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -8,7 +9,21 @@ const Product = () => {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [results, setResults] = useState([]);
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await getUserProfileApi();
+      setUser(res.data);
+      // console.log('User profile fetched:', res.data);
+    } catch (error) {
+      console.error("Failed to fetch user profile", error);
+    }
+  };
+
+  fetchUser();
+}, []);
   const categories = [
     { value: '', label: '🏪 All Categories' },
     { value: 'electronics', label: '📱 Electronics' },
@@ -18,6 +33,9 @@ const Product = () => {
     { value: 'sports', label: '⚽ Sports' },
     { value: 'beauty', label: '💄 Beauty' }
   ];
+
+
+  const canAddProduct = user && (user.role === 'seller' || user.role === 'admin');
 
   const handleSearch = async (newQuery = query) => {
     try {
@@ -84,7 +102,7 @@ const Product = () => {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Results Info */}
+        {/* Results Info and Add Product Button */}
         <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-gray-600 font-medium">
@@ -96,6 +114,17 @@ const Product = () => {
               </span>
             )}
           </div>
+          
+          {/* Add Product Button - Only visible to sellers and admins */}
+          {canAddProduct && (
+            <Link
+              to="/addProduct"
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors shadow-sm"
+            >
+              <span className="text-lg">➕</span>
+              Add Product
+            </Link>
+          )}
         </div>
 
         {/* Products Grid */}

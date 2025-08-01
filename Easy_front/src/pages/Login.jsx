@@ -14,14 +14,14 @@ const Login = () => {
 
 try {
   const response = await loginUserApi({ email, password });
-  console.log("Login response:", response.data);
+  // console.log("Login response:", response.data);
 
   if (response?.data?.token) {
     localStorage.setItem('token', response.data.token);
     toast.success("Login successful!");
 
     const decoded = jwtDecode(response.data.token);
-    console.log("Decoded token:", decoded);
+    // console.log("Decoded token:", decoded);
 
     if (decoded?.role === 'admin') {
   setTimeout(() => {
@@ -29,7 +29,7 @@ try {
   }, 1000);
 } else if (decoded?.role === 'seller') {
   setTimeout(() => {
-    navigate('/sellerDashboard');
+    navigate('/Home');
   }, 1000);
 } else {
   setTimeout(() => {

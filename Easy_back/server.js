@@ -4,6 +4,7 @@ require("dotenv").config();
 const { sequelize, connectDB } = require('./DB/Database')
 const userRoutes = require("./Routes/userRoute");
 const productRoutes = require("./Routes/productRoutes");
+const wishlistRoutes = require("./Routes/wishlistRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -25,6 +26,8 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 app.use('/api/user', userRoutes);
 app.use('/api/product', productRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+
 
 const StartServer = async () => {
     try {
