@@ -9,7 +9,6 @@ It allows users to post products, browse listings, manage wishlists, and interac
 
 ### 👤 User Authentication
 - **User Login & Registration** — Secure signup and login system.
-- **Profile Management** — Update personal details, view listings, and manage activity.
 
 ### 🛍 Product Management
 - **Post Product for Sale** — Sellers can easily list their items with images and descriptions.
